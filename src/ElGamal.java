@@ -91,12 +91,12 @@ public class ElGamal {
 
             BigInteger p = privateKey.get(0);
             BigInteger g = privateKey.get(1);
-            BigInteger beta = privateKey.get(2);
+            BigInteger b = privateKey.get(2);
 
             BigInteger r = crypto.get(0);
             BigInteger t = crypto.get(1);
 
-            BigInteger mod = r.modPow(beta, p);
+            BigInteger mod = r.modPow(b, p);
             BigInteger m = (mod.modInverse(p).multiply(t)).mod(p);
 
             String decrypt = m.toString();
@@ -105,13 +105,64 @@ public class ElGamal {
 
         // odczytuje klucz prywatny, nastêpnie odczytuje wiadomosc z pliku message.txt i produkuje podpis, czyli dwa wiersze zapisane do pliku signature.txt.
         if (args[0].equals("-s")) {
+            List<BigInteger> privateKey = czytajPlikDoBigInt(PRIVATE, 3);
 
+            List<BigInteger> message = czytajPlikDoBigInt(MESSAGE, 1);
+
+            BigInteger p = privateKey.get(0);
+            BigInteger g = privateKey.get(1);
+            BigInteger b = privateKey.get(2);
+
+            BigInteger m = message.get(0);
+
+            if (m.compareTo(p) > 0) {
+                System.out.println("Wartosc z pliku " + MESSAGE + " jest wieksza, niz liczba pierwsza z " + PUBLIC);
+                return;
+            }
+
+            BigInteger k = randomBigInt(BigInteger.valueOf(2L), p.subtract(BigInteger.ONE));
+            while (k.gcd(p.subtract(BigInteger.ONE)).compareTo(BigInteger.ONE) != 0) {
+                k = randomBigInt(BigInteger.valueOf(2L), p.subtract(BigInteger.ONE));
+            }
+
+            BigInteger r = g.modPow(k, p);
+            BigInteger x = ((m.subtract(b.multiply(r))).multiply(k.modInverse(p.subtract(BigInteger.ONE)))).mod(p.subtract(BigInteger.ONE));
+
+            String signature = r.toString() + "\n" + x.toString();
+            zapiszDoPliku(SIGNATURE, signature);
         }
 
         // odczytuje klucz publiczny, wiadomosc z pliku message.txt oraz podpis z pliku signature.txt i weryfikuje ten podpis.
         // Wynik weryfikacji jest wyswietlany na ekranie ale rowniez zapisywany w pliku verify.txt.
         if (args[0].equals("-v")) {
+            List<BigInteger> publicKey = czytajPlikDoBigInt(PUBLIC, 3);
 
+            List<BigInteger> message = czytajPlikDoBigInt(MESSAGE, 1);
+
+            List<BigInteger> signature = czytajPlikDoBigInt(SIGNATURE, 2);
+
+            BigInteger p = publicKey.get(0);
+            BigInteger g = publicKey.get(1);
+            BigInteger beta = publicKey.get(2);
+
+            BigInteger m = message.get(0);
+
+            BigInteger r = signature.get(0);
+            BigInteger x = signature.get(1);
+
+            BigInteger a = g.modPow(m, p);
+            // tutaj sprobowac jedno mod na koniec
+            BigInteger b = (r.modPow(x, p).multiply(beta.modPow(r, p))).mod(p);
+
+            if (a.compareTo(b) == 0) {
+                String poprawny = "Podpis zweryfikowany pomyslnie";
+                System.out.println(poprawny);
+                zapiszDoPliku(VERIFY, poprawny);
+            } else {
+                String niepoprawny = "Podpis jest niepoprawny!";
+                System.out.println(niepoprawny);
+                zapiszDoPliku(VERIFY, niepoprawny);
+            }
         }
     }
 
