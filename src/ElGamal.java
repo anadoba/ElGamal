@@ -151,7 +151,6 @@ public class ElGamal {
             BigInteger x = signature.get(1);
 
             BigInteger a = g.modPow(m, p);
-            // tutaj sprobowac jedno mod na koniec
             BigInteger b = (r.modPow(x, p).multiply(beta.modPow(r, p))).mod(p);
 
             if (a.compareTo(b) == 0) {
@@ -175,69 +174,6 @@ public class ElGamal {
             System.out.println("Plik " + nazwaPliku + " nie zawiera " + iloscliczb + " liczb.");
             System.exit(0);
         }
-    }
-
-    private static BigInteger najwiekszyWspolnyDzielnik(BigInteger a, BigInteger b) {
-        if (b == BigInteger.ZERO) {
-            return a;
-        } else {
-            return najwiekszyWspolnyDzielnik(b, a.mod(b));
-        }
-    }
-
-    /*
-    private static BigInteger[] rozszerzoneNWD(BigInteger a, BigInteger b) {
-        BigInteger ostatniaReszta = a.abs();
-        BigInteger reszta = b.abs();
-
-        BigInteger ostatnieX = BigInteger.ONE;
-        BigInteger x = BigInteger.ZERO;
-        BigInteger ostatnieY = BigInteger.ZERO;
-        BigInteger y = BigInteger.ONE;
-        BigInteger iloraz;
-        BigInteger[] ilorazReszta = new BigInteger[2];
-
-        while (reszta.compareTo(BigInteger.ZERO) > 0) {
-            System.out.println(ostatniaReszta);
-            System.out.println(reszta);
-            ostatniaReszta = reszta;
-            ilorazReszta = ostatniaReszta.divideAndRemainder(reszta);
-            iloraz = ilorazReszta[0];
-            reszta = ilorazReszta[1];
-
-            x = ostatnieX.subtract(iloraz).multiply(x);
-            ostatnieX = x;
-            y = ostatnieY.subtract(iloraz).multiply(y);
-            ostatnieY = y;
-        }
-
-        BigInteger[] wynik = new BigInteger[3];
-        wynik[0] = ostatniaReszta;
-        wynik[1] = ostatnieX.multiply( (a.compareTo(BigInteger.ZERO) < 0) ? BigInteger.ONE.negate() : BigInteger.ONE);
-        wynik[2] = ostatnieY.multiply( (b.compareTo(BigInteger.ZERO) < 0) ? BigInteger.ONE.negate() : BigInteger.ONE);
-        return wynik;
-    }
-
-    public static BigInteger modInv(BigInteger a, BigInteger b) {
-        BigInteger[] wynikRozszerzonegoNWD = rozszerzoneNWD(a, b);
-
-        if (wynikRozszerzonegoNWD[0].compareTo(BigInteger.ONE) != 0) {
-            System.out.println("Nie mozna odwrocic");
-            System.exit(0);
-        }
-
-        return wynikRozszerzonegoNWD[1].mod(b);
-    }
-    */
-
-    public static int randomInt(int min, int max) {
-        Random rand = new Random();
-
-        int next = (max - min) + 1;
-
-        int randomNum = rand.nextInt(next > 0 ? next : 1) + min;
-
-        return randomNum;
     }
 
     public static BigInteger randomBigInt(BigInteger min, BigInteger max) {
@@ -288,8 +224,6 @@ public class ElGamal {
         for (String liczbaString : stringLiczby.trim().replaceAll(" +", " ").split(" ")) {
             listaBigInt.add(bigIntegerStringConverter.fromString(liczbaString));
         }
-
-        //System.out.println(listaBigInt.toString());
 
         return listaBigInt;
     }
